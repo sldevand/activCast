@@ -55,8 +55,7 @@ router.get('/pause', (req, res) => {
     });
 });
 
-router.get('/play', (req, res) => {
-
+router.get('/stop', (req, res) => {
     if(!videoPlayer.running){
         return res.json({
             status: 0,
@@ -64,10 +63,11 @@ router.get('/play', (req, res) => {
         })
     }
 
-    videoPlayer.play();
+    videoPlayer.quit();
+
     res.json({
         status: 1,
-        message: 'play'
+        message: 'Stop'
     });
 });
 
