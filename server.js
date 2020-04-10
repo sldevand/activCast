@@ -40,11 +40,35 @@ router.post('/yt', (req, res) => {
 });
 
 router.get('/pause', (req, res) => {
-    videoPlayer.pause();
+    if(!videoPlayer.running){
+        return res.json({
+            status: 0,
+            message: 'Player is not running'
+        })
+    }
+
+    videoPlayer.pause(); 
+
+    res.json({
+        status: 1,
+        message: 'Pause'
+    });
 });
 
 router.get('/play', (req, res) => {
+
+    if(!videoPlayer.running){
+        return res.json({
+            status: 0,
+            message: 'Player is not running'
+        })
+    }
+
     videoPlayer.play();
+    res.json({
+        status: 1,
+        message: 'play'
+    });
 });
 
 //register our routes, all of our routes will be prefixed with /api
