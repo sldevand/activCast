@@ -1,18 +1,11 @@
-var fs = require('fs');
-var AudioOutput = require('omxplayer-node');
-var VideoOutput = require('omxplayer-node');
-var createVideoPlayer = require('omxplayer-node');
 var youtubedl = require('youtube-dl');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 require('dotenv').config();
+var Omx = require('node-omxplayer');
 
-const videoPlayer = createVideoPlayer({
-    display: VideoOutput.HDMI,
-    audio: AudioOutput.alsa,
-    osd: false
-});
+var videoPlayer = Omx();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -53,9 +46,7 @@ router.post('/yt', (req, res) => {
             return sendError(res, 'A player is already running !')
         }
 
-        videoPlayer.open({
-            source: info.url
-        });
+        videoPlayer.newSource(info.url, "hdmi", false, 0);
 
         sendSuccess(res, 'Casting your video : ' + url);
     })
