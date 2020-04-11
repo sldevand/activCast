@@ -10,7 +10,7 @@ require('dotenv').config();
 
 const videoPlayer = createVideoPlayer({
     display: VideoOutput.HDMI,
-    audio: AudioOutput.HDMI,
+    audio: AudioOutput.alsa,
     osd: false
 });
 
@@ -75,6 +75,17 @@ router.get('/command/stop', (req, res) => {
     videoPlayer.quit();
     sendSuccess(res, 'Stop');
 });
+
+router.get('/command/volUp', (req, res) => {
+    videoPlayer.volUp();
+    sendSuccess(res, 'Volume Up');
+});
+
+router.get('/command/volDown', (req, res) => {
+    videoPlayer.volDown();
+    sendSuccess(res, 'Volume Down');
+});
+
 
 router.get('/command/fastFwd', (req, res) => {
     videoPlayer.fastFwd();
