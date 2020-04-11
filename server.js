@@ -16,9 +16,9 @@ const videoPlayer = createVideoPlayer({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(/command/,(req,req,next) => {
-    if(videoPlayer.running) {
-       return next();
+app.use(/command/, (req, res, next) => {
+    if (videoPlayer.running) {
+        return next();
     }
     return sendNotRunningPlayer(res);
 });
@@ -33,7 +33,7 @@ router.get('/yt/:url', (req, res) => {
         if (err) throw err
         console.log('Youtubedl fetched stream Url');
 
-        if(videoPlayer.running) {
+        if (videoPlayer.running) {
             return sendError(res, 'A player is already running !')
         }
         videoPlayer.open({
