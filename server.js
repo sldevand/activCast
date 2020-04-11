@@ -53,11 +53,9 @@ router.post('/yt', (req, res) => {
 
 router.post('/omx', (req,res) => {
     const url = req.body.url;
-    if (videoPlayer.running) {
-        return sendError(res, 'A player is already running !')
-    }
-
     videoPlayer.newSource(url, "hdmi", false, 0);
+
+    sendSuccess(res, 'Casting your video');
 });
 
 router.get('/command/pause', (req, res) => {
