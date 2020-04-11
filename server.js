@@ -39,7 +39,9 @@ router.get('/yt/:url', (req, res) => {
     const url = req.params.url;
     const options = [];
     youtubedl.getInfo(url, options, (err, info) => {
-        if (err) throw err
+        if (err){
+            sendError(res, err.message);
+        } 
         console.log('Youtubedl fetched stream Url');
 
         if (videoPlayer.running) {
