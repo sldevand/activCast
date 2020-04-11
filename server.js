@@ -165,11 +165,20 @@ router.get('/isRunning', (req, res) => {
     sendSuccess(res, message);
 });
 
+videoPlayer.on('error', (message) => {
+    return res.json({
+        status: 0,
+        message: 'Player is not running',
+        running: videoPlayer.running
+    })
+});
+
 //register our routes, all of our routes will be prefixed with /api
 app.use('/activcast', router);
 
 app.listen(port);
 console.log('Started activCast on port ' + port);
+
 
 
 function checkRunningPlayer(res) {
