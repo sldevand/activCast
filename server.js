@@ -15,7 +15,7 @@ var router = express.Router();
 
 // Middleware to test if player is running
 router.use(function (req, res, next) {
-    let pattern = /yt/;
+    let pattern = /yt|omx/;
 
     if (!pattern.test(req.path)) {
         if (videoPlayer.running) {
@@ -41,7 +41,6 @@ router.post('/yt', (req, res) => {
             sendError(res, err.message);
         }
         console.log('Youtubedl fetched stream Url');
-        console.log(info.url);
         if (videoPlayer.running) {
             return sendError(res, 'A player is already running !')
         }
@@ -50,6 +49,15 @@ router.post('/yt', (req, res) => {
 
         sendSuccess(res, 'Casting your video : ' + url);
     })
+});
+
+router.post('/omx', (req,res) => {
+    const url = req.body.url;
+    if (videoPlayer.running) {
+        return sendError(res, 'A player is already running !')
+    }
+
+    videoPlayer.newSource(url, "hdmi", false, 0);
 });
 
 router.get('/command/pause', (req, res) => {
