@@ -17,7 +17,6 @@ const videoPlayer = createVideoPlayer({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
 var port = process.env.PORT || 8080;
 var router = express.Router();
 
@@ -35,20 +34,27 @@ router.use(function (req, res, next) {
     return next();
 })
 
-router.get('/yt/:url', (req, res) => {
-    const url = req.params.url;
+router.post('/yt', (req, res) => {
+    const url = req.body.url;
+    const youtubeUrlPattern = /https:\/\/youtu.be\//
+
+    if (!youtubeUrlPattern.test(url)) {
+        return sendError(res, 'This url does not match any youtube share link!')
+    }
+
     const options = [];
     youtubedl.getInfo(url, options, (err, info) => {
-        if (err){
+        if (err) {
             sendError(res, err.message);
-        } 
+        }
         console.log('Youtubedl fetched stream Url');
 
         if (videoPlayer.running) {
             return sendError(res, 'A player is already running !')
         }
+
         videoPlayer.open({
-            source: info.url,
+            source: info.url
         });
 
         sendSuccess(res, 'Casting your video : ' + url);
