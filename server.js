@@ -31,143 +31,139 @@ router.get('/yt/:url', (req, res) => {
             source: info.url,
         });
 
-        res.json({
-            status: 1,
-            message: 'Casting your video with url : ' + url
-        });
+        sendSuccess(res, 'Casting your video : ' + url);
     })
 });
 
 router.get('/pause', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.pause();
-    sendSuccess('Pause');
+    sendSuccess(res, 'Pause');
 });
 
 router.get('/play', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.play();
-    sendSuccess('Play');
+    sendSuccess(res, 'Play');
 });
 
 router.get('/stop', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.quit();
-    sendSuccess('Stop');
+    sendSuccess(res, res, 'Stop');
 });
 
 router.get('/fastFwd', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.fastFwd();
-    sendSuccess('Fast Forward');
+    sendSuccess(res, 'Fast Forward');
 });
 
 router.get('/fwd30', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.fwd30();
-    sendSuccess('Skip forward by 30 sec');
+    sendSuccess(res, 'Skip forward by 30 sec');
 });
 
 router.get('/fwd600', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.fwd600();
-    sendSuccess('Skip forward by 10 minutes');
+    sendSuccess(res, 'Skip forward by 10 minutes');
 });
 
 router.get('/rewind', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.rewind();
-    sendSuccess('Rewind');
+    sendSuccess(res, 'Rewind');
 });
 
 router.get('/back30', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.back30();
-    sendSuccess('Skip backward by 30 sec');
+    sendSuccess(res, 'Skip backward by 30 sec');
 });
 
 router.get('/back600', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.back600();
-    sendSuccess('Skip backward by 10 minutes');
+    sendSuccess(res, 'Skip backward by 10 minutes');
 });
 
 router.get('/subtitles', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.subtitles();
-    sendSuccess('Toggle subtitles');
+    sendSuccess(res, 'Toggle subtitles');
 });
 
 router.get('/info', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.info();
-    sendSuccess('Show infos of the file');
+    sendSuccess(res, 'Show infos of the file');
 });
 
 router.get('/incSpeed', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.incSpeed();
-    sendSuccess('Increase speed');
+    sendSuccess(res, 'Increase speed');
 });
 
 router.get('/decSpeed', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.decSpeed();
-    sendSuccess('Decrease speed');
+    sendSuccess(res, 'Decrease speed');
 });
 
 router.get('/prevChapter', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.prevChapter();
-    sendSuccess('Previous chapter');
+    sendSuccess(res, 'Previous chapter');
 });
 
 router.get('/nextChapter', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.nextChapter();
-    sendSuccess('Next chapter');
+    sendSuccess(res, 'Next chapter');
 });
 
 router.get('/prevAudio', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.prevAudio();
-    sendSuccess('Previous audio');
+    sendSuccess(res, 'Previous audio');
 });
 
 router.get('/nextAudio', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.nextAudio();
-    sendSuccess('Next audio');
+    sendSuccess(res, 'Next audio');
 });
 
 router.get('/prevSubtitle', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.prevSubtitle();
-    sendSuccess('Previous subtitle');
+    sendSuccess(res, 'Previous subtitle');
 });
 
 router.get('/nextSubtitle', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.nextSubtitle();
-    sendSuccess('Next subtitle');
+    sendSuccess(res, 'Next subtitle');
 });
 
 router.get('/incSubDelay', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.incSubDelay();
-    sendSuccess('Increase subtitle delay');
+    sendSuccess(res, 'Increase subtitle delay');
 });
 
 router.get('/isRunning', (req, res) => {
-    checkRunningPlayer();
+    checkRunningPlayer(res);
     videoPlayer.nextAudio();
     let message = videoPlayer.isRunning
         ? 'Player is running'
         : 'Player is not running'
 
-    sendSuccess(message);
+    sendSuccess(res, message);
 });
-
 
 //register our routes, all of our routes will be prefixed with /api
 app.use('/activcast', router);
@@ -176,7 +172,7 @@ app.listen(port);
 console.log('Started activCast on port ' + port);
 
 
-function checkRunningPlayer() {
+function checkRunningPlayer(res) {
     if (!videoPlayer.running) {
         return res.json({
             status: 0,
@@ -186,7 +182,7 @@ function checkRunningPlayer() {
     }
 }
 
-function sendSuccess(message) {
+function sendSuccess(res, message) {
     return res.json({
         status: 1,
         message: message,
