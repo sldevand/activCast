@@ -48,7 +48,7 @@ router.post('/yt', (req, res) => {
             sendError(res, err.message);
         }
         console.log('Youtubedl fetched stream Url');
-
+        console.log(info.url);
         if (videoPlayer.running) {
             return sendError(res, 'A player is already running !')
         }
