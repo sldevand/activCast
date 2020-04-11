@@ -16,15 +16,24 @@ const videoPlayer = createVideoPlayer({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(/command/, (req, res, next) => {
-    if (videoPlayer.running) {
-        return next();
-    }
-    return sendNotRunningPlayer(res);
-});
+
 
 var port = process.env.PORT || 8080;
 var router = express.Router();
+
+// Middleware to test if player is running
+router.use(function (req, res, next) {
+    let pattern = /yt/;
+
+    if (!pattern.test(req.path)) {
+        if (videoPlayer.running) {
+            return next();
+        }
+        return sendNotRunningPlayer(res);
+    }
+
+    return next();
+})
 
 router.get('/yt/:url', (req, res) => {
     const url = req.params.url;
@@ -45,127 +54,106 @@ router.get('/yt/:url', (req, res) => {
 });
 
 router.get('/command/pause', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.pause();
     sendSuccess(res, 'Pause');
 });
 
 router.get('/command/play', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.play();
     sendSuccess(res, 'Play');
 });
 
 router.get('/command/stop', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.quit();
-    sendSuccess(res, res, 'Stop');
+    sendSuccess(res, 'Stop');
 });
 
 router.get('/command/fastFwd', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.fastFwd();
     sendSuccess(res, 'Fast Forward');
 });
 
 router.get('/command/fwd30', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.fwd30();
     sendSuccess(res, 'Skip forward by 30 sec');
 });
 
 router.get('/command/fwd600', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.fwd600();
     sendSuccess(res, 'Skip forward by 10 minutes');
 });
 
 router.get('/command/rewind', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.rewind();
     sendSuccess(res, 'Rewind');
 });
 
 router.get('/command/back30', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.back30();
     sendSuccess(res, 'Skip backward by 30 sec');
 });
 
 router.get('/command/back600', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.back600();
     sendSuccess(res, 'Skip backward by 10 minutes');
 });
 
 router.get('/command/subtitles', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.subtitles();
     sendSuccess(res, 'Toggle subtitles');
 });
 
 router.get('/command/info', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.info();
     sendSuccess(res, 'Show infos of the file');
 });
 
 router.get('/command/incSpeed', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.incSpeed();
     sendSuccess(res, 'Increase speed');
 });
 
 router.get('/command/decSpeed', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.decSpeed();
     sendSuccess(res, 'Decrease speed');
 });
 
 router.get('/command/prevChapter', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.prevChapter();
     sendSuccess(res, 'Previous chapter');
 });
 
 router.get('/command/nextChapter', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.nextChapter();
     sendSuccess(res, 'Next chapter');
 });
 
 router.get('/command/prevAudio', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.prevAudio();
     sendSuccess(res, 'Previous audio');
 });
 
 router.get('/command/nextAudio', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.nextAudio();
     sendSuccess(res, 'Next audio');
 });
 
 router.get('/command/prevSubtitle', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.prevSubtitle();
     sendSuccess(res, 'Previous subtitle');
 });
 
 router.get('/command/nextSubtitle', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.nextSubtitle();
     sendSuccess(res, 'Next subtitle');
 });
 
 router.get('/command/incSubDelay', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.incSubDelay();
     sendSuccess(res, 'Increase subtitle delay');
 });
 
 router.get('/command/isRunning', (req, res) => {
-    checkRunningPlayer(res);
     videoPlayer.nextAudio();
     let message = videoPlayer.isRunning
         ? 'Player is running'
@@ -173,6 +161,14 @@ router.get('/command/isRunning', (req, res) => {
 
     sendSuccess(res, message);
 });
+
+// router.use(/command/, (req, res, next) => {
+//     console.log("command middleware")
+//     if (videoPlayer.running) {
+//         return next();
+//     }
+//     return sendNotRunningPlayer(res);
+// });
 
 //register our routes, all of our routes will be prefixed with /api
 app.use('/activcast', router);
