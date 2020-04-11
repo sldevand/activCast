@@ -50,6 +50,12 @@ router.get('/play', (req, res) => {
     sendSuccess('Play');
 });
 
+router.get('/stop', (req, res) => {
+    checkRunningPlayer();
+    videoPlayer.quit();
+    sendSuccess('Stop');
+});
+
 router.get('/fastFwd', (req, res) => {
     checkRunningPlayer();
     videoPlayer.fastFwd();
