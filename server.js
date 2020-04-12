@@ -53,7 +53,15 @@ router.post('/yt', (req, res) => {
 
 router.post('/omx', (req,res) => {
     const url = req.body.url;
+    if(!url) {
+       sendError(res, 'No url was received !'); 
+    }
+
     videoPlayer.newSource(url, "hdmi", false, 0);
+
+    if(!videoPlayer.running) {
+        return sendNotRunningPlayer(res);
+    }
 
     sendSuccess(res, 'Casting your video');
 });
