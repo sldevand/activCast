@@ -58,7 +58,7 @@ router.post('/omx', (req, res) => {
         sendError(res, 'No url was received !');
     }
 
-    if (!debug) {
+    if (debug == 0) {
         videoPlayer.newSource(url, "hdmi", false, 0);
     }
 
@@ -188,14 +188,6 @@ router.get('/command/isRunning', (req, res) => {
 
     sendSuccess(res, message);
 });
-
-// router.use(/command/, (req, res, next) => {
-//     console.log("command middleware")
-//     if (videoPlayer.running) {
-//         return next();
-//     }
-//     return sendNotRunningPlayer(res);
-// });
 
 //register our routes, all of our routes will be prefixed with /api
 app.use('/activcast', router);

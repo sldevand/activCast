@@ -1,10 +1,11 @@
 {
-  "name": "activplayer",
+  "name": "activcast",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "Cast Youtube videos on a raspberry pi",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sldevand/activCast"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +14,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "node-omxplayer": "^0.6.1",
+    "socket.io": "^2.3.0",
     "youtube-dl": "^3.0.2"
   }
 }
