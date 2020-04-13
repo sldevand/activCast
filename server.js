@@ -2,7 +2,7 @@ var youtubedl = require('youtube-dl');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
 var Omx = require('node-omxplayer');
 
 var videoPlayer = Omx();
@@ -11,6 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 var port = process.env.PORT || 8080;
+var debug = process.env.DEBUG || 0;
 var router = express.Router();
 
 // Middleware to test if player is running
@@ -51,15 +52,17 @@ router.post('/yt', (req, res) => {
     })
 });
 
-router.post('/omx', (req,res) => {
+router.post('/omx', (req, res) => {
     const url = req.body.url;
-    if(!url) {
-       sendError(res, 'No url was received !'); 
+    if (!url) {
+        sendError(res, 'No url was received !');
     }
 
-    videoPlayer.newSource(url, "hdmi", false, 0);
+    if (!debug) {
+        videoPlayer.newSource(url, "hdmi", false, 0);
+    }
 
-    if(!videoPlayer.running) {
+    if (!videoPlayer.running) {
         return sendNotRunningPlayer(res);
     }
 
