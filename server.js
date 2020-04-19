@@ -1,216 +1,111 @@
 var youtubedl = require('youtube-dl');
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-require('dotenv').config({ path: __dirname + '/.env' });
 var Omx = require('node-omxplayer');
+var server = require('http').createServer();
+var io = require('socket.io').listen(server);
+require('dotenv').config({ path: __dirname + '/.env' });
 
 var videoPlayer = Omx();
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
 var port = process.env.PORT || 8080;
 var debug = process.env.DEBUG || 0;
-var router = express.Router();
 
-// Middleware to test if player is running
-router.use(function (req, res, next) {
-    let pattern = /yt|omx/;
+io.sockets.on('connection', socket => {
+    var clientIp = socket.request.connection.remoteAddress;
+    console.log("Client connected : " + clientIp);
 
-    if (!pattern.test(req.path)) {
-        if (videoPlayer.running) {
-            return next();
+    videoPlayer.on('error', (err) => {
+        emitError(socket, err);
+    });
+
+    videoPlayer.on('close', (message) => {
+        emitSuccess(socket, message);
+    });
+
+    socket.on('disconnect', () => {
+        var clientIp = socket.request.connection.remoteAddress;
+        if (videoPlayer.isRunning) videoPlayer.quit();
+        console.log(clientIp + ' Disconnected');
+    }).on('yt', (request) => {
+        console.log(request);
+        const json = JSON.parse(request);
+        if (!checkUrlRequest(json)) {
+            return;
         }
-        return sendNotRunningPlayer(res);
+
+        launchYoutubeDl(socket, json.url);
+    }).on('omx', (request) => {
+        const json = JSON.parse(request);
+        if (!checkUrlRequest(json)) {
+            return;
+        }
+        console.log(json);
+        if (debug == 0) {
+            return launchOmxplayer(json.url);
+        }
+        emitSuccess(socket, 'Fake omxplayer launch for debug');
+    }).on('pause', () => {
+        if (checkIsrunning(socket)) {
+            videoPlayer.pause();
+        }
+    }).on('play', () => {
+        if (checkIsrunning(socket)) {
+            videoPlayer.play();
+        }
+    }).on('stop', () => {
+        if (checkIsrunning(socket)) {
+            videoPlayer.quit();
+        }
+    });
+});
+
+function checkIsrunning(socket) {
+    if (!videoPlayer.isRunning) {
+        emitError(socket, "Video player is not running");
+        return false
     }
+    emitSuccess(socket, "Video player is running");
 
-    return next();
-})
+    return true;
+}
 
-router.post('/yt', (req, res) => {
-    const url = req.body.url;
-    const youtubeUrlPattern = /https:\/\/youtu.be\//
+function launchYoutubeDl(socket, url) {
+    const youtubeUrlPattern = /(http|https):\/\/(www\.|m.|)youtube\.com\/watch\?v=(.+?)( |\z|&)/;
+    const youtubeShortLink = /(http|https):\/\/(www\.|)youtu.be\/(.+?)( |\z|&)/;
 
-    if (!youtubeUrlPattern.test(url)) {
-        return sendError(res, 'This url does not match any youtube share link!')
+    if (!youtubeUrlPattern.test(url) || !youtubeShortLink.test(url)) {
+        return emitError(socket, 'This url does not match any Youtube short link or Youtube page');
     }
 
     const options = [];
     youtubedl.getInfo(url, options, (err, info) => {
         if (err) {
-            sendError(res, err.message);
+            emitError(socket, err.message);
         }
-        console.log('Youtubedl fetched stream Url');
-        if (videoPlayer.running) {
-            return sendError(res, 'A player is already running !')
-        }
-
-        videoPlayer.newSource(info.url, "hdmi", false, 0);
-
-        sendSuccess(res, 'Casting your video : ' + url);
-    })
-});
-
-router.post('/omx', (req, res) => {
-    const url = req.body.url;
-    if (!url) {
-        sendError(res, 'No url was received !');
-    }
-
-    if (debug == 0) {
-        videoPlayer.newSource(url, "hdmi", false, 0);
-    }
-
-    if (!videoPlayer.running) {
-        return sendNotRunningPlayer(res);
-    }
-
-    sendSuccess(res, 'Casting your video');
-});
-
-router.get('/command/pause', (req, res) => {
-    videoPlayer.pause();
-    sendSuccess(res, 'Pause');
-});
-
-router.get('/command/play', (req, res) => {
-    videoPlayer.play();
-    sendSuccess(res, 'Play');
-});
-
-router.get('/command/stop', (req, res) => {
-    videoPlayer.quit();
-    sendSuccess(res, 'Stop');
-});
-
-router.get('/command/volUp', (req, res) => {
-    videoPlayer.volUp();
-    sendSuccess(res, 'Volume Up');
-});
-
-router.get('/command/volDown', (req, res) => {
-    videoPlayer.volDown();
-    sendSuccess(res, 'Volume Down');
-});
-
-
-router.get('/command/fastFwd', (req, res) => {
-    videoPlayer.fastFwd();
-    sendSuccess(res, 'Fast Forward');
-});
-
-router.get('/command/fwd30', (req, res) => {
-    videoPlayer.fwd30();
-    sendSuccess(res, 'Skip forward by 30 sec');
-});
-
-router.get('/command/fwd600', (req, res) => {
-    videoPlayer.fwd600();
-    sendSuccess(res, 'Skip forward by 10 minutes');
-});
-
-router.get('/command/rewind', (req, res) => {
-    videoPlayer.rewind();
-    sendSuccess(res, 'Rewind');
-});
-
-router.get('/command/back30', (req, res) => {
-    videoPlayer.back30();
-    sendSuccess(res, 'Skip backward by 30 sec');
-});
-
-router.get('/command/back600', (req, res) => {
-    videoPlayer.back600();
-    sendSuccess(res, 'Skip backward by 10 minutes');
-});
-
-router.get('/command/subtitles', (req, res) => {
-    videoPlayer.subtitles();
-    sendSuccess(res, 'Toggle subtitles');
-});
-
-router.get('/command/info', (req, res) => {
-    videoPlayer.info();
-    sendSuccess(res, 'Show infos of the file');
-});
-
-router.get('/command/incSpeed', (req, res) => {
-    videoPlayer.incSpeed();
-    sendSuccess(res, 'Increase speed');
-});
-
-router.get('/command/decSpeed', (req, res) => {
-    videoPlayer.decSpeed();
-    sendSuccess(res, 'Decrease speed');
-});
-
-router.get('/command/prevChapter', (req, res) => {
-    videoPlayer.prevChapter();
-    sendSuccess(res, 'Previous chapter');
-});
-
-router.get('/command/nextChapter', (req, res) => {
-    videoPlayer.nextChapter();
-    sendSuccess(res, 'Next chapter');
-});
-
-router.get('/command/prevAudio', (req, res) => {
-    videoPlayer.prevAudio();
-    sendSuccess(res, 'Previous audio');
-});
-
-router.get('/command/nextAudio', (req, res) => {
-    videoPlayer.nextAudio();
-    sendSuccess(res, 'Next audio');
-});
-
-router.get('/command/prevSubtitle', (req, res) => {
-    videoPlayer.prevSubtitle();
-    sendSuccess(res, 'Previous subtitle');
-});
-
-router.get('/command/nextSubtitle', (req, res) => {
-    videoPlayer.nextSubtitle();
-    sendSuccess(res, 'Next subtitle');
-});
-
-router.get('/command/incSubDelay', (req, res) => {
-    videoPlayer.incSubDelay();
-    sendSuccess(res, 'Increase subtitle delay');
-});
-
-router.get('/command/isRunning', (req, res) => {
-    videoPlayer.nextAudio();
-    let message = videoPlayer.isRunning
-        ? 'Player is running'
-        : 'Player is not running'
-
-    sendSuccess(res, message);
-});
-
-//register our routes, all of our routes will be prefixed with /api
-app.use('/activcast', router);
-
-app.listen(port);
-console.log('Started activCast on port ' + port);
-
-function sendNotRunningPlayer(res) {
-    sendError(res, 'Player is not running');
-}
-
-function sendError(res, message) {
-    return res.json({
-        status: 0,
-        message: message,
-        running: videoPlayer.running
-    })
-}
-
-function sendSuccess(res, message) {
-    return res.json({
-        status: 1,
-        message: message,
-        running: videoPlayer.running
+        launchOmxplayer(info.url);
     });
 }
+
+function launchOmxplayer(url) {
+    videoPlayer.newSource(info.url, "hdmi", true, 0);
+    emitSuccess(socket, 'Casting your video');
+}
+
+function checkUrlRequest(json, socket) {
+    if (!json.hasOwnProperty('url')) {
+        emitError(socket, 'The request is malformed, missing url key!');
+        return false;
+    }
+
+    return true;
+}
+
+function emitSuccess(socket, message) {
+    socket.emit('success', message);
+}
+
+function emitError(socket, message) {
+    socket.emit('error', message);
+}
+
+server.listen(port, () => {
+    console.log('ActivCast Server Listening on port : ' + port)
+});
