@@ -78,14 +78,14 @@ function launchYoutubeDl(socket, url) {
     const options = [];
     youtubedl.getInfo(url, options, (err, info) => {
         if (err) {
-            emitError(socket, err.message);
+            return emitError(socket, err.message);
         }
         launchOmxplayer(info.url);
     });
 }
 
 function launchOmxplayer(url) {
-    videoPlayer.newSource(info.url, "hdmi", true, 0);
+    videoPlayer.newSource(url, "hdmi", true, 0);
     emitSuccess(socket, 'Casting your video');
 }
 
