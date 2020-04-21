@@ -36,7 +36,53 @@ Result in CLI :
 ActivCast Server Listening on port : 5901
 ```
 
+## Add to Systemd
+
+If you want to run the node server.js as a daemon, follow these instructions :
+
+Create a service file
+```
+[Unit]
+Description=ActivCast Youtube Cast Node Server
+
+[Service]
+ExecStart=/home/pi/activCast/server.js
+Restart=always
+User=pi
+Group=nogroup
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/home/pi/activCast
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Copy your service file into the /etc/systemd/system.
+```
+sudo cp /your/path/to/activCast.service /etc/systemd/system
+```
+
+Start it with
+```
+sudo systemctl start activCast.
+```
+
+Enable it to run on boot with
+```
+ systemctl enable activCast
+```
+
+See logs with
+```
+journalctl -u myapp
+```
+
 ## Author
 Sébastien Lorrain
 
 ## [License](LICENSE.md)
+
+## Sources
+
+Thanks to [mikemaccana](https://stackoverflow.com/users/123671/mikemaccana) on StackOverflow : [How do I run a node.js app as a background service?](https://stackoverflow.com/questions/4018154/how-do-i-run-a-node-js-app-as-a-background-service/29042953#29042953) 
