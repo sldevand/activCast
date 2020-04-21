@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var youtubedl = require('youtube-dl');
 var Omx = require('node-omxplayer');
 var server = require('http').createServer();
