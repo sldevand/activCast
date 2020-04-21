@@ -59,12 +59,9 @@ io.sockets.on('connection', socket => {
 
 function checkIsrunning(socket) {
     if (!videoPlayer.isRunning) {
-        emitError(socket, "Video player is not running");
-        return false
+        return emitError(socket, "Video player is not running");
     }
-    emitSuccess(socket, "Video player is running");
-
-    return true;
+    return emitSuccess(socket, "Video player is running");
 }
 
 function launchYoutubeDl(socket, url) {
@@ -84,26 +81,27 @@ function launchYoutubeDl(socket, url) {
     });
 }
 
-function launchOmxplayer(url) {
+function launchOmxplayer(socket, url) {
     videoPlayer.newSource(url, "hdmi", true, 0);
     emitSuccess(socket, 'Casting your video');
 }
 
 function checkUrlRequest(json, socket) {
     if (!json.hasOwnProperty('url')) {
-        emitError(socket, 'The request is malformed, missing url key!');
-        return false;
+        return emitError(socket, 'The request is malformed, missing url key!');
     }
 
     return true;
 }
 
 function emitSuccess(socket, message) {
-    socket.emit('success', message);
+    socket.emit('success','Socket : ' + message);
+    return true;
 }
 
 function emitError(socket, message) {
-    socket.emit('error', message);
+    socket.emit('trouble', 'Socket : ' + message);
+    return false;
 }
 
 server.listen(port, () => {
