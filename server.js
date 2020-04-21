@@ -17,7 +17,7 @@ io.sockets.on('connection', socket => {
     });
 
     videoPlayer.on('close', (message) => {
-        emitSuccess(socket, message);
+        emitError(socket, message);
     });
 
     socket.on('disconnect', () => {
@@ -95,12 +95,12 @@ function checkUrlRequest(json, socket) {
 }
 
 function emitSuccess(socket, message) {
-    socket.emit('success','Socket : ' + message);
+    socket.emit('success', message);
     return true;
 }
 
 function emitError(socket, message) {
-    socket.emit('trouble', 'Socket : ' + message);
+    socket.emit('trouble', message);
     return false;
 }
 
