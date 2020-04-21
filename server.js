@@ -39,7 +39,7 @@ io.sockets.on('connection', socket => {
         }
         console.log(json);
         if (debug == 0) {
-            return launchOmxplayer(json.url);
+            return launchOmxplayer(socket, json.url);
         }
         emitSuccess(socket, 'Fake omxplayer launch for debug');
     }).on('pause', () => {
@@ -78,14 +78,14 @@ function launchYoutubeDl(socket, url) {
     const options = [];
     youtubedl.getInfo(url, options, (err, info) => {
         if (err) {
-            emitError(socket, err.message);
+            return emitError(socket, err.message);
         }
-        launchOmxplayer(info.url);
+        launchOmxplayer(socket, info.url);
     });
 }
 
 function launchOmxplayer(url) {
-    videoPlayer.newSource(info.url, "hdmi", true, 0);
+    videoPlayer.newSource(url, "hdmi", true, 0);
     emitSuccess(socket, 'Casting your video');
 }
 
