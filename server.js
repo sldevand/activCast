@@ -58,7 +58,7 @@ io.sockets.on('connection', socket => {
 });
 
 function checkIsrunning(socket) {
-    if (!videoPlayer.isRunning) {
+    if (!videoPlayer.running) {
         return emitError(socket, "Video player is not running");
     }
     return emitSuccess(socket, "Video player is running");
