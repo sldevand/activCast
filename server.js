@@ -55,6 +55,22 @@ io.sockets.on('connection', socket => {
         if (checkIsrunning(socket)) {
             videoPlayer.quit();
         }
+    }).on('fwd30', () => {
+        if (checkIsrunning(socket)) {
+            videoPlayer.fwd30();
+        }
+    }).on('fwd600', () => {
+        if (checkIsrunning(socket)) {
+            videoPlayer.fwd600();
+        }
+    }).on('back30', () => {
+        if (checkIsrunning(socket)) {
+            videoPlayer.back30();
+        }
+    }).on('back600', () => {
+        if (checkIsrunning(socket)) {
+            videoPlayer.back600();
+        }
     });
 });
 
