@@ -78,7 +78,7 @@ function checkIsrunning(socket) {
     if (!videoPlayer.running) {
         return emitError(socket, "Video player is not running");
     }
-    return emitSuccess(socket, "Video player is running");
+    return true;
 }
 
 function launchYoutubeDl(socket, url) {
