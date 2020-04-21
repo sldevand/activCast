@@ -39,7 +39,7 @@ io.sockets.on('connection', socket => {
         }
         console.log(json);
         if (debug == 0) {
-            return launchOmxplayer(json.url);
+            return launchOmxplayer(socket, json.url);
         }
         emitSuccess(socket, 'Fake omxplayer launch for debug');
     }).on('pause', () => {
@@ -80,7 +80,7 @@ function launchYoutubeDl(socket, url) {
         if (err) {
             return emitError(socket, err.message);
         }
-        launchOmxplayer(info.url);
+        launchOmxplayer(socket, info.url);
     });
 }
 
