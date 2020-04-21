@@ -17,7 +17,8 @@ io.sockets.on('connection', socket => {
     });
 
     videoPlayer.on('close', (message) => {
-        emitError(socket, message);
+        let msg = message || 'Player has closed';
+        emitError(socket, msg);
     });
 
     socket.on('disconnect', () => {
