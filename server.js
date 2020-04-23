@@ -72,6 +72,8 @@ io.sockets.on('connection', socket => {
         if (checkIsrunning(socket)) {
             videoPlayer.back600();
         }
+    }).on('isRunning', () => {
+        emitSuccess(socket,'');
     });
 });
 
